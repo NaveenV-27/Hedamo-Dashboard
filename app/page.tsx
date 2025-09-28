@@ -1,103 +1,151 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import data from "@/data/products.json"
+import Link from "next/link";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+
+type Product = {
+  id: number
+  productName: string
+  category: string
+  score: number
+  status: string
+  suggestions?: string[]
+  flags?: string[]
+}
+
+const COLORS = ["#22c55e", "#eab308", "#ef4444"] // green, yellow, red
+
+
+const mockProducts = data;
+export default function HomePage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const list = mockProducts.slice(0,5);
+  useEffect(() => {
+    setTimeout(() => setProducts(list), 500)
+  }, [])
+
+  const totalProducts = products.length
+  const avgScore = totalProducts > 0 ? Math.round(products.reduce((sum, p) => sum + p.score, 0) / totalProducts) : 0
+  const flaggedProducts = products.filter(p => p.flags).length
+  const approved = products.filter(p => p.status === "Approved").length
+  const pending = products.filter(p => p.status === "Pending").length
+
+  const scoreData = [
+    { name: "High (70-100)", value: products.filter(p => p.score >= 70).length },
+    { name: "Medium (40-69)", value: products.filter(p => p.score >= 40 && p.score < 70).length },
+    { name: "Low (0-39)", value: products.filter(p => p.score < 40).length },
+  ]
+
+  const recentSuggestions = products.flatMap(p =>
+    p.suggestions?.map(s => ({ product: p.productName, suggestion: s })) || []
+  ).slice(0, 4)
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="p-6 space-y-6 text-gray-100">
+      <h1 className="text-3xl font-bold">Welcome back 👋</h1>
+      <p className="text-gray-400">Here’s an overview of your product transparency dashboard.</p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-slate-900 p-4 rounded shadow">
+          <p className="text-gray-400">Total Products</p>
+          <p className="text-2xl font-bold">{totalProducts}</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="bg-slate-900 p-4 rounded shadow">
+          <p className="text-gray-400">Avg Transparency Score</p>
+          <p className="text-2xl font-bold">{avgScore}</p>
+        </div>
+        <div className="bg-slate-900 p-4 rounded shadow">
+          <p className="text-gray-400">Flagged Products</p>
+          <p className="text-2xl font-bold">{flaggedProducts}</p>
+        </div>
+        <div className="bg-slate-900 p-4 rounded shadow">
+          <p className="text-gray-400">Approved / Pending</p>
+          <p className="text-2xl font-bold">{approved} / {pending}</p>
+        </div>
+      </div>
+
+      {/* Chart + Suggestions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Score Distribution */}
+        <div className="bg-slate-900 p-4 rounded shadow">
+          <h2 className="text-xl font-bold mb-4">Transparency Score Distribution</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={scoreData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label
+              >
+                {scoreData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend/>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* AI Suggestions */}
+        <div className="bg-slate-900 p-4 rounded shadow">
+          <h2 className="text-xl font-bold mb-4">Recent AI Suggestions</h2>
+          <ul className="space-y-2">
+            {recentSuggestions.map((s, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-green-400">💡</span>
+                <p><span className="font-semibold">{s.product}</span>: {s.suggestion}</p>
+              </li>
+            ))}
+          </ul>
+          {recentSuggestions.length === 0 && <p className="text-gray-400">No suggestions yet.</p>}
+        </div>
+      </div>
+
+      {/* Recent Products */}
+      <div className="bg-slate-900 p-4 rounded shadow overflow-x-scroll md:overflow-hidden">
+        <h2 className="text-xl font-bold mb-4">Recent Products</h2>
+        <table className="w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-slate-700">
+              <th className="p-2 text-left">Name</th>
+              <th className="p-2 text-left">Category</th>
+              <th className="p-2 text-left">Score</th>
+              <th className="p-2 text-left">Status</th>
+              <th className="p-2 text-left">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.slice(0, 5).map(p => (
+              <tr key={p.id} className="border-b border-slate-700">
+                <td className="p-2">{p.productName}</td>
+                <td className="p-2">{p.category}</td>
+                <td className="p-2">
+                  <span className={`px-2 py-1 rounded text-black ${p.score > 70 ? "bg-green-500" : p.score > 40 ? "bg-yellow-500" : "bg-red-500"}`}>
+                    {p.score}
+                  </span>
+                </td>
+                <td className="p-2">{p.status}</td>
+                <td className="p-2">
+                  <Link href={`/products/${p.id}`} className="text-blue-400 hover:underline">View</Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex gap-4">
+        <Link href="/add" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">➕ Add Product</Link>
+        <Link href="/products" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">📂 Manage Products</Link>
+        <Link href="/analytics" className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">📊 View Analytics</Link>
+      </div>
     </div>
-  );
+  )
 }
