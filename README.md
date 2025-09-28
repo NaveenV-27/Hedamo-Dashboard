@@ -10,17 +10,15 @@ A product transparency and management dashboard built with **Next.js (App Router
   - `Add` → Add new products to the system
   - `View Products` → View existing products with details
 - **Responsive design** (desktop + mobile friendly)
-- **API integration** with Hedamo backend:
-  - Add Product API
-  - View Products API
+  
 - Supports product attributes like:
   - Name
   - Category
   - Price
-  - Stock
+  - Ingredients
   - Description
-  - Image
-  - Tags
+  - Flags
+  - ai suggestions
 
 ---
 
@@ -28,6 +26,7 @@ A product transparency and management dashboard built with **Next.js (App Router
 - **Framework**: Next.js (13+ with App Router)
 - **Styling**: Tailwind CSS
 - **Icons**: [Lucide React](https://lucide.dev)
+- **Visualizations**: [Recharts](https://recharts.org/)
 - **Language**: TypeScript
 - **API**: Custom Hedamo REST API (Add / View Products)
 
